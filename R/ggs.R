@@ -70,7 +70,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
     if (sort) {
       D$Parameter <- factor(D$Parameter, levels=custom.sort(D$Parameter))
     } else {
-      D$Parameter <- factor(D$Parameter, levels = D$Parameter)
+      D$Parameter <- factor(D$Parameter, levels = unique(D$Parameter))
     }
     processed <- TRUE
     D <- dplyr::tbl_df(D)
@@ -95,7 +95,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
       if (sort) {
         D$Parameter <- factor(D$Parameter, levels=custom.sort(D$Parameter))
       } else {
-        D$Parameter <- factor(D$Parameter, levels = D$Parameter)
+        D$Parameter <- factor(D$Parameter, levels = unique(D$Parameter))
       }
     }
     nBurnin <- as.integer(gsub("warmup=", "", scan(S[[i]], "", skip=12, nlines=1, quiet=TRUE)[2]))
@@ -147,7 +147,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
       if (sort) {
         D$Parameter <- factor(D$Parameter, levels=custom.sort(D$Parameter))
       } else {
-        D$Parameter <- factor(D$Parameter, levels = D$Parameter)
+        D$Parameter <- factor(D$Parameter, levels = unique(D$Parameter))
       }
       D <- dplyr::arrange(D, Parameter, Chain, Iteration)
     }
@@ -208,7 +208,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
           if (sort) {
             D$Parameter <- factor(D$Parameter, levels=custom.sort(D$Parameter))
           } else {
-            D$Parameter <- factor(D$Parameter, levels = D$Parameter)
+            D$Parameter <- factor(D$Parameter, levels = unique(D$Parameter))
           }
         }
         # Unfortunately, the attributes are not inherited in left_join(), so they have to be manually passed again
@@ -229,7 +229,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
             if (sort) {
               D$Parameter <- factor(D$Parameter, levels=custom.sort(D$Parameter))
             } else {
-              D$Parameter <- factor(D$Parameter, levels = D$Parameter)
+              D$Parameter <- factor(D$Parameter, levels = unique(D$Parameter))
             }
           }
         }
