@@ -70,7 +70,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
     if (sort) {
       D$Parameter <- factor(D$Parameter, levels=custom.sort(D$Parameter))
     } else {
-      D$Parameter <- factor(D$Parameter)
+      D$Parameter <- factor(D$Parameter, levels = D$Parameter)
     }
     processed <- TRUE
     D <- dplyr::tbl_df(D)
@@ -83,11 +83,11 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
     D <- NULL
     for (i in 1:length(S)) {
       samples.c <- dplyr::tbl_df(read.table(S[[i]], sep=",", header=TRUE,
-        colClasses="numeric", check.names=FALSE))
+                                            colClasses="numeric", check.names=FALSE))
       D <- dplyr::bind_rows(D,
-        tidyr::gather(samples.c, Parameter) %>%
-        dplyr::mutate(Iteration=rep(1:(dim(samples.c)[1]), dim(samples.c)[2]), Chain=i) %>%
-        dplyr::select(Iteration, Chain, Parameter, value))
+                            tidyr::gather(samples.c, Parameter) %>%
+                              dplyr::mutate(Iteration=rep(1:(dim(samples.c)[1]), dim(samples.c)[2]), Chain=i) %>%
+                              dplyr::select(Iteration, Chain, Parameter, value))
     }
     # Exclude, by default, lp parameter and other auxiliar ones
     if (!stan_include_auxiliar) {
@@ -95,7 +95,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
       if (sort) {
         D$Parameter <- factor(D$Parameter, levels=custom.sort(D$Parameter))
       } else {
-        D$Parameter <- factor(D$Parameter)
+        D$Parameter <- factor(D$Parameter, levels = D$Parameter)
       }
     }
     nBurnin <- as.integer(gsub("warmup=", "", scan(S[[i]], "", skip=12, nlines=1, quiet=TRUE)[2]))
@@ -114,7 +114,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
       } else { # for already processed samples, use dplyr()'s own filter based on grepl
         D <- D %>%
           filter(grepl(family, Parameter)) %>%
-          mutate(Parameter = as.factor(as.character(Parameter)))
+          mutate(Parameter = factor(as.character(Parameter), levels = as.character(Parameter)))
       }
     }
     if (!processed) { # only in JAGS or MCMCpack, using coda
@@ -147,7 +147,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
       if (sort) {
         D$Parameter <- factor(D$Parameter, levels=custom.sort(D$Parameter))
       } else {
-        D$Parameter <- factor(D$Parameter)
+        D$Parameter <- factor(D$Parameter, levels = D$Parameter)
       }
       D <- dplyr::arrange(D, Parameter, Chain, Iteration)
     }
@@ -208,7 +208,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
           if (sort) {
             D$Parameter <- factor(D$Parameter, levels=custom.sort(D$Parameter))
           } else {
-            D$Parameter <- factor(D$Parameter)
+            D$Parameter <- factor(D$Parameter, levels = D$Parameter)
           }
         }
         # Unfortunately, the attributes are not inherited in left_join(), so they have to be manually passed again
@@ -229,7 +229,7 @@ ggs <- function(S, family = NA, description = NA, burnin = TRUE, par_labels = NA
             if (sort) {
               D$Parameter <- factor(D$Parameter, levels=custom.sort(D$Parameter))
             } else {
-              D$Parameter <- factor(D$Parameter)
+              D$Parameter <- factor(D$Parameter, levels = D$Parameter)
             }
           }
         }
@@ -287,12 +287,12 @@ ggs_chain <- function(s) {
   # Get the number of samples and the vector of iterations
   n.samples <- dim(s)[1]
   iter <- 1:n.samples
-
+  
   # Prepare the dataframe
   d <- data.frame(Iteration=iter, as.matrix(unclass(s)), check.names=FALSE)
   D <- d %>%
     tidyr::gather(Parameter, value, -Iteration)
-
+  
   # Return the modified data frame as a tbl_df to be used by dplyr
   D <- dplyr::tbl_df(D)
   return(D)
@@ -313,7 +313,7 @@ custom.sort <- function(x) {
       index <- gsub("]", "", gsub("(.+)\\[", "", x.family))
       if (length(grep(",", index) > 0)) { # multiple dimensional object
         idl <- data.frame(x.family = x.family, index = index,
-          matrix(unlist(strsplit(index, ",")), nrow = length(index), byrow = TRUE))
+                          matrix(unlist(strsplit(index, ",")), nrow = length(index), byrow = TRUE))
         for (c in 3:(dim(idl)[2])) { # convert Xs' into numeric values
           idl[,c] <- as.numeric(as.character(idl[,c]))
         }
